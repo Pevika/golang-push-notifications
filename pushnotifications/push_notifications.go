@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 type PushNotification struct {
@@ -19,7 +20,8 @@ func NewPushNotification (awsAccessKey string, awsSecretKey string, region strin
 	entity := new(PushNotification)
 	cred := credentials.NewStaticCredentials(awsAccessKey, awsSecretKey, "")
 	config := aws.NewConfig().WithRegion(region).WithCredentials(cred)
-	entity.sns = sns.New(config)
+	sess := session.New(config)
+	entity.sns = sns.New(sess)
 	return entity
 }
 
