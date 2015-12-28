@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-    "log"
 )
 
 type PushNotification struct {
@@ -62,7 +61,6 @@ func (this *PushNotification) Send (arn string, text string, data map[string]str
         d = d + ",\\\"" + key + "\\\":\\\"" + value + "\\\""
     }
     message := "{\"APNS\":\"{\\\"aps\\\":{\\\"alert\\\":\\\"" + text + "\\\"" + d + "}}\"}"
-    log.Println(message)
 	params := &sns.PublishInput{
 		Message: aws.String(message),
 		MessageStructure: aws.String("json"),
