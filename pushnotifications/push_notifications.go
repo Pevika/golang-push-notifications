@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+    "log"
 )
 
 type PushNotification struct {
@@ -55,9 +56,15 @@ func (this *PushNotification) Unregister (arn string) error {
 }
 
 // Sends a message to a particular endpoint from Amazon SNS
-func (this *PushNotification) Send (arn string, text string) error {
+func (this *PushNotification) Send (arn string, text string, data map[string]string) error {
+    d := ""
+    for key, value := range data {
+        d = d + ",\\\"" + key + "\\\":\\\"" + value + "\\\""
+    }
+    message := "{\"APNS\":\"{\\\"aps\\\":{\\\"alert\\\":\\\"" + text + "\\\"" + d + "}}\"}"
+    log.Println(message)
 	params := &sns.PublishInput{
-		Message: aws.String("{\"default\":\"" + text + "\"}"),
+		Message: aws.String(message),
 		MessageStructure: aws.String("json"),
 		TargetArn: aws.String(arn),
 	}
