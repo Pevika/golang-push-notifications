@@ -9,10 +9,27 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+    "encoding/json"
 )
 
 type PushNotification struct {
 	sns		*sns.SNS
+}
+
+type Push struct {
+    Alert       *string         `json:"alert"`
+    Sound       *string         `json:"sound,omitempty"`
+    Data        interface{}     `json:"custom_data"`
+}
+
+type wrapper struct {
+    APNS        string         `json:"APNS"`
+    APNSSandbox string         `json:"APNS_SANDBOX"`
+    Default     string          `json:"default"`        
+}
+
+type iosPush struct {
+    APS         Push            `json:"aps"`
 }
 
 // Create a push notification manager
@@ -55,17 +72,28 @@ func (this *PushNotification) Unregister (arn string) error {
 }
 
 // Sends a message to a particular endpoint from Amazon SNS
-func (this *PushNotification) Send (arn string, text string, data map[string]string) error {
-    d := ""
-    for key, value := range data {
-        d = d + ",\\\"" + key + "\\\":\\\"" + value + "\\\""
+func (this *PushNotification) Send (arn string, data *Push) error {
+    msg := wrapper{}
+    ios := iosPush{
+        APS: *data,
     }
-    message := "{\"APNS\":\"{\\\"aps\\\":{\\\"alert\\\":\\\"" + text + "\\\"" + d + "}}\"}"
+    b, err := json.Marshal(ios)
+    if err != nil {
+        return err
+    }
+    msg.APNS = string(b[:])
+    msg.APNSSandbox = msg.APNS
+    msg.Default = msg.Default
+    pushData, err := json.Marshal(msg)
+    if err != nil {
+        return err
+    }
+    m := string(pushData[:])
 	params := &sns.PublishInput{
-		Message: aws.String(message),
+		Message: aws.String(m),
 		MessageStructure: aws.String("json"),
 		TargetArn: aws.String(arn),
 	}
-	_, err := this.sns.Publish(params)
+	_, err = this.sns.Publish(params)
 	return err
 }
