@@ -16,20 +16,28 @@ type PushNotification struct {
 	sns		*sns.SNS
 }
 
+type Alert struct {
+	Body			*string			`json:"body"`
+	LocKey			*string			`json:"loc-key"`
+	LocArgs			*[]interface{}	`json:"loc-args"`
+	ActionLocKey	*string			`json:"action-loc-key"`
+}
+
 type Push struct {
-    Alert       *string         `json:"alert"`
+    Alert       *Alert         	`json:"alert,omitempty"`
     Sound       *string         `json:"sound,omitempty"`
     Data        interface{}     `json:"custom_data"`
+	Badge		*int			`json:"badge,omitempty"`
 }
 
 type wrapper struct {
     APNS        string         `json:"APNS"`
     APNSSandbox string         `json:"APNS_SANDBOX"`
-    Default     string          `json:"default"`        
+    Default     string         `json:"default"`        
 }
 
 type iosPush struct {
-    APS         Push            `json:"aps"`
+    APS         Push           `json:"aps"`
 }
 
 // Create a push notification manager
