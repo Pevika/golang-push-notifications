@@ -24,7 +24,7 @@ type Alert struct {
 }
 
 type Push struct {
-    Alert       *Alert         	`json:"alert,omitempty"`
+	Alert       *string         `json:"alert,omitempty"`
     Sound       *string         `json:"sound,omitempty"`
     Data        interface{}     `json:"custom_data"`
 	Badge		*int			`json:"badge,omitempty"`
