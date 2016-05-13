@@ -31,13 +31,23 @@ type Push struct {
 }
 
 type wrapper struct {
-    APNS        string         `json:"APNS"`
-    APNSSandbox string         `json:"APNS_SANDBOX"`
-    Default     string         `json:"default"`        
+    APNS        string         	`json:"APNS"`
+    APNSSandbox string         	`json:"APNS_SANDBOX"`
+    Default     string         	`json:"default"`
+	GCM			string			`json:"GCM"`      
 }
 
 type iosPush struct {
-    APS         Push           `json:"aps"`
+    APS         Push           	`json:"aps"`
+}
+
+type gcmPush struct {
+	Message		string			`json:"message"`
+	Custom		interface{}		`json:"custom"`
+}
+
+type gcmPushWrapper struct {
+	Data		gcmPush			`json:"data"`	
 }
 
 // Create a push notification manager
@@ -91,7 +101,18 @@ func (this *PushNotification) Send (arn string, data *Push) error {
     }
     msg.APNS = string(b[:])
     msg.APNSSandbox = msg.APNS
-    msg.Default = msg.Default
+    msg.Default = *data.Alert.Body
+	gcm := gcmPushWrapper{
+		Data: gcmPush{
+			Message: *data.Alert.Body,
+			Custom: data.Data,
+		},
+	}
+	b, err = json.Marshal(gcm)
+	if err != nil {
+		return err
+	}
+	msg.GCM = string(b[:])
     pushData, err := json.Marshal(msg)
     if err != nil {
         return err
