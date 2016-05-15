@@ -101,10 +101,10 @@ func (this *PushNotification) Send (arn string, data *Push) error {
     }
     msg.APNS = string(b[:])
     msg.APNSSandbox = msg.APNS
-    msg.Default = *data.Alert.Body
+    msg.Default = *data.Alert
 	gcm := gcmPushWrapper{
 		Data: gcmPush{
-			Message: *data.Alert.Body,
+			Message: *data.Alert,
 			Custom: data.Data,
 		},
 	}
