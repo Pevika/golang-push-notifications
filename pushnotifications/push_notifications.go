@@ -42,8 +42,9 @@ type iosPush struct {
 }
 
 type gcmPush struct {
-	Message		string			`json:"message"`
+	Message		*string			`json:"message,omitempty"`
 	Custom		interface{}		`json:"custom"`
+	Badge		*int			`json:"badge,omitempty"`
 }
 
 type gcmPushWrapper struct {
@@ -60,7 +61,7 @@ func NewPushNotification (awsAccessKey string, awsSecretKey string, region strin
 	return entity
 }
 
-// Registers the endpoint into Amazon SNS
+// Register registers the endpoint into Amazon SNS
 func (this *PushNotification) Register (token string, applicationARN string, userData string) (string, error) {
 	params := &sns.CreatePlatformEndpointInput{
 		PlatformApplicationArn: aws.String(applicationARN),
@@ -104,8 +105,9 @@ func (this *PushNotification) Send (arn string, data *Push) error {
     msg.Default = *data.Alert
 	gcm := gcmPushWrapper{
 		Data: gcmPush{
-			Message: *data.Alert,
+			Message: data.Alert,
 			Custom: data.Data,
+			Badge: data.Badge,
 		},
 	}
 	b, err = json.Marshal(gcm)
